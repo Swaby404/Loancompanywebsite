@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Mail, Lock, Home } from 'lucide-react';
+import { Mail, Lock, Home, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
@@ -10,6 +10,7 @@ export default function SignIn() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,12 +23,20 @@ export default function SignIn() {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Sign in error:', error);
+        setError('Invalid email or password');
+        setLoading(false);
+        return;
+      }
 
+      console.log(`✅ User signed in: ${email} - Access granted to personal account`);
+      
+      // Redirect to dashboard
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
-    } finally {
+    } catch (err) {
+      console.error('Signin error:', err);
+      setError('Failed to sign in. Please try again.');
       setLoading(false);
     }
   };
@@ -83,13 +92,20 @@ export default function SignIn() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 
@@ -101,6 +117,12 @@ export default function SignIn() {
               {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
+
+          <div className="mt-4 text-center">
+            <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+              Forgot your password?
+            </Link>
+          </div>
 
           <p className="mt-6 text-center text-gray-600">
             Don't have an account?{' '}

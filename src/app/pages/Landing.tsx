@@ -108,8 +108,8 @@ export default function Landing() {
               <a href="mailto:Harveysloansllc@outlook.com" className="text-gray-300 hover:text-white transition-colors">
                 ✉️ Harveysloansllc@outlook.com
               </a>
-              <Link to="/admin-tools" className="text-gray-400 hover:text-gray-300 text-xs transition-colors">
-                Admin Tools
+              <Link to="/admin/login" className="text-gray-400 hover:text-gray-300 text-xs transition-colors">
+                Admin Portal
               </Link>
             </div>
             <p className="text-gray-400 text-sm">

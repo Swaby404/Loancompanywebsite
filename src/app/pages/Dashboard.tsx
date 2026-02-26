@@ -15,6 +15,7 @@ export default function Dashboard() {
 
   const checkUser = async () => {
     try {
+      // Use Supabase session
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -137,7 +138,7 @@ export default function Dashboard() {
             You'll need to provide proof of employment and a valid ID.
           </p>
           <Link
-            to="/apply"
+            to="/loan-application"
             className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold"
           >
             Start Application

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, DollarSign, Calendar, CreditCard, CheckCircle, Home } from 'lucide-react';
-import { supabase, API_URL } from '../lib/supabase';
-import { publicAnonKey } from '/utils/supabase/info';
+import { supabase } from '../lib/supabase';
+import { authFetch } from '../lib/authFetch';
 import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 interface Loan {
@@ -34,7 +34,6 @@ export default function LoanDetail() {
   const [loan, setLoan] = useState<Loan | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState('');
   const [error, setError] = useState('');
   const [paymentAmount, setPaymentAmount] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -53,28 +52,21 @@ export default function LoanDetail() {
         return;
       }
 
-      setAccessToken(session.access_token);
-      await fetchLoanDetails(session.access_token);
-      await fetchPaymentHistory(session.access_token);
+      await fetchLoanDetails();
+      await fetchPaymentHistory();
     } catch (error) {
       console.error('Error checking authentication:', error);
       navigate('/signin');
     }
   };
 
-  const fetchLoanDetails = async (token: string) => {
+  const fetchLoanDetails = async () => {
     try {
-      const response = await fetch(`${API_URL}/loans/${loanId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const { data, ok, error: fetchError } = await authFetch(`/loans/${loanId}`);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error fetching loan details:', data.error);
-        setError(data.error || 'Failed to fetch loan details');
+      if (!ok) {
+        console.error('Error fetching loan details:', data?.error || fetchError);
+        setError(data?.error || fetchError || 'Failed to fetch loan details');
         setLoading(false);
         return;
       }
@@ -89,17 +81,11 @@ export default function LoanDetail() {
     }
   };
 
-  const fetchPaymentHistory = async (token: string) => {
+  const fetchPaymentHistory = async () => {
     try {
-      const response = await fetch(`${API_URL}/loans/${loanId}/payments`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const { data, ok } = await authFetch(`/loans/${loanId}/payments`);
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (ok) {
         setPayments(data.payments || []);
       }
     } catch (err) {
@@ -126,27 +112,21 @@ export default function LoanDetail() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/loans/${loanId}/payments`, {
+      const { data, ok, error: fetchError } = await authFetch(`/loans/${loanId}/payments`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
         body: JSON.stringify({ amount }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error making payment:', data.error);
-        setError(data.error || 'Failed to process payment');
+      if (!ok) {
+        console.error('Error making payment:', data?.error || fetchError);
+        setError(data?.error || fetchError || 'Failed to process payment');
         setProcessing(false);
         return;
       }
 
       // Update loan and payments
       setLoan(data.loan);
-      await fetchPaymentHistory(accessToken);
+      await fetchPaymentHistory();
       setShowPaymentForm(false);
       setPaymentAmount(data.loan.monthlyPayment.toString());
       alert('Payment processed successfully!');

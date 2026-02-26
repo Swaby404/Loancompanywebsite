@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ArrowLeft, Upload, CheckCircle, CreditCard, Home } from 'lucide-react';
-import { supabase, API_URL } from '../lib/supabase';
-import { publicAnonKey } from '/utils/supabase/info';
+import { supabase } from '../lib/supabase';
+import { authFetch } from '../lib/authFetch';
 import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 // Dynamically import Stripe to avoid SSR issues
@@ -21,11 +21,11 @@ export default function LoanApplication() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1);
-  const [accessToken, setAccessToken] = useState('');
 
   // Form data
   const [formData, setFormData] = useState({
     fullName: '',
+    email: '',
     phone: '',
     address: '',
     city: '',
@@ -69,10 +69,10 @@ export default function LoanApplication() {
       }
 
       setUser(session.user);
-      setAccessToken(session.access_token);
       setFormData(prev => ({
         ...prev,
         fullName: session.user.user_metadata?.name || '',
+        email: session.user.email || '',
       }));
       setLoading(false);
     } catch (error) {
@@ -100,23 +100,21 @@ export default function LoanApplication() {
     setError('');
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('documentType', 'employment_proof');
+      const uploadForm = new FormData();
+      uploadForm.append('file', file);
+      uploadForm.append('documentType', 'employment_proof');
 
-      const response = await fetch(`${API_URL}/upload`, {
+      const { data, ok, error: fetchError, retryAfterSeconds } = await authFetch('/upload', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: formData,
+        body: uploadForm,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error uploading employment proof document:', data.error);
-        setError(data.error || 'Failed to upload document');
+      if (!ok) {
+        const msg = retryAfterSeconds
+          ? `Too many upload attempts. Please wait ${retryAfterSeconds} seconds.`
+          : data?.error || fetchError || 'Failed to upload document';
+        console.error('Error uploading employment proof document:', msg);
+        setError(msg);
         setUploadingEmployment(false);
         return;
       }
@@ -139,23 +137,21 @@ export default function LoanApplication() {
     setError('');
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('file', file);
-      formDataToSend.append('documentType', 'id_verification');
+      const uploadForm = new FormData();
+      uploadForm.append('file', file);
+      uploadForm.append('documentType', 'id_verification');
 
-      const response = await fetch(`${API_URL}/upload`, {
+      const { data, ok, error: fetchError, retryAfterSeconds } = await authFetch('/upload', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: formDataToSend,
+        body: uploadForm,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error uploading ID verification document:', data.error);
-        setError(data.error || 'Failed to upload document');
+      if (!ok) {
+        const msg = retryAfterSeconds
+          ? `Too many upload attempts. Please wait ${retryAfterSeconds} seconds.`
+          : data?.error || fetchError || 'Failed to upload document';
+        console.error('Error uploading ID verification document:', msg);
+        setError(msg);
         setUploadingId(false);
         return;
       }
@@ -175,20 +171,14 @@ export default function LoanApplication() {
 
     try {
       // Create payment intent for application fee ($50)
-      const response = await fetch(`${API_URL}/create-payment-intent`, {
+      const { data, ok, error: fetchError } = await authFetch('/create-payment-intent', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
         body: JSON.stringify({ amount: 50 }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error creating payment intent for application fee:', data.error);
-        setError(data.error || 'Failed to process payment');
+      if (!ok) {
+        console.error('Error creating payment intent for application fee:', data?.error || fetchError);
+        setError(data?.error || fetchError || 'Failed to process payment');
         setProcessingPayment(false);
         return;
       }
@@ -212,31 +202,42 @@ export default function LoanApplication() {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/applications`, {
+      const { data, ok, error: fetchError } = await authFetch('/loan-applications', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
         body: JSON.stringify({
-          ...formData,
-          employmentProofUrl,
-          idProofUrl,
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          employer: formData.employer,
+          jobTitle: formData.jobTitle,
+          monthlyIncome: parseFloat(formData.monthlyIncome),
+          annualIncome: parseFloat(formData.monthlyIncome) * 12,
+          employmentYears: parseFloat(formData.employmentYears),
+          employmentStatus: 'employed',
+          loanAmount: parseFloat(formData.loanAmount),
+          loanPurpose: formData.loanPurpose,
+          proofOfEmployment: employmentProofUrl,
+          idDocument: idProofUrl,
+          dateOfBirth: '1990-01-01',
           submittedAt: new Date().toISOString(),
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error submitting loan application:', data.error);
-        setError(data.error || 'Failed to submit application');
+      if (!ok) {
+        console.error('Error submitting loan application:', data?.error || fetchError);
+        setError(data?.error || fetchError || 'Failed to submit application');
         setSubmitting(false);
         return;
       }
 
+      console.log('✅ Loan application submitted successfully:', data.application.applicationId);
+      
       // Success - redirect to dashboard
-      alert('Application submitted successfully! We will review your application and contact you soon.');
+      alert('Application submitted successfully! We will review your application and contact you within 24-48 hours.');
       navigate('/dashboard');
     } catch (err) {
       console.error('Error submitting application:', err);

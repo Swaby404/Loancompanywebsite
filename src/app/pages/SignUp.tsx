@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Mail, Lock, User, Home } from 'lucide-react';
-import { supabase, API_URL } from '../lib/supabase';
-import { publicAnonKey } from '/utils/supabase/info';
+import { Mail, Lock, User, Home, Eye, EyeOff } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { publicFetch } from '../lib/authFetch';
 import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 export default function SignUp() {
@@ -15,49 +15,63 @@ export default function SignUp() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear email exists flag when user changes email
+    if (e.target.name === 'email') {
+      setEmailExists(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/signup`, {
+      // Call backend signup endpoint
+      const { data, ok, error: fetchError } = await publicFetch('/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`,
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          name: formData.name,
-        }),
+        body: JSON.stringify({ email: formData.email, password: formData.password, name: formData.name }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create account');
+      if (!ok) {
+        const msg = data?.retryAfterSeconds
+          ? `Too many requests. Please wait ${data.retryAfterSeconds} seconds and try again.`
+          : data?.error || fetchError || 'Failed to create account';
+        setError(msg);
+        setLoading(false);
+        return;
       }
 
-      navigate('/signin');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account');
-    } finally {
+      console.log('✅ User signed up successfully:', formData.email);
+      console.log('🎉 Access granted! Welcome to Harvey\'s Loans');
+
+      // Sign in the user after successful signup
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInError) {
+        console.error('Auto sign-in error:', signInError);
+        // Redirect to sign in page
+        navigate('/signin');
+        return;
+      }
+
+      // Redirect to dashboard
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Failed to create account. Please try again.');
       setLoading(false);
     }
   };
@@ -83,8 +97,24 @@ export default function SignUp() {
           <p className="text-gray-600 text-center mb-8">Start your loan application today</p>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{error}</p>
+            <div className={`mb-6 p-4 border rounded-lg ${
+              emailExists 
+                ? 'bg-yellow-50 border-yellow-200' 
+                : 'bg-red-50 border-red-200'
+            }`}>
+              <p className={`text-sm ${emailExists ? 'text-yellow-800' : 'text-red-800'}`}>
+                {error}
+              </p>
+              {emailExists && (
+                <div className="mt-3">
+                  <Link 
+                    to="/signin"
+                    className="inline-block px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 font-medium"
+                  >
+                    Go to Sign In
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
@@ -132,15 +162,22 @@ export default function SignUp() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
             </div>
@@ -152,15 +189,22 @@ export default function SignUp() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
             </div>

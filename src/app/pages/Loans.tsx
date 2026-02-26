@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Home, DollarSign, Calendar, TrendingUp, CreditCard, ChevronRight } from 'lucide-react';
-import { supabase, API_URL } from '../lib/supabase';
-import { publicAnonKey } from '/utils/supabase/info';
+import { supabase } from '../lib/supabase';
+import { authFetch } from '../lib/authFetch';
 import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 interface Loan {
@@ -24,7 +24,6 @@ export default function Loans() {
   const navigate = useNavigate();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -40,27 +39,20 @@ export default function Loans() {
         return;
       }
 
-      setAccessToken(session.access_token);
-      await fetchLoans(session.access_token);
+      await fetchLoans();
     } catch (error) {
       console.error('Error checking authentication:', error);
       navigate('/signin');
     }
   };
 
-  const fetchLoans = async (token: string) => {
+  const fetchLoans = async () => {
     try {
-      const response = await fetch(`${API_URL}/loans`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const { data, ok, error: fetchError } = await authFetch('/loans');
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error fetching loans:', data.error);
-        setError(data.error || 'Failed to fetch loans');
+      if (!ok) {
+        console.error('Error fetching loans:', data?.error || fetchError);
+        setError(data?.error || fetchError || 'Failed to fetch loans');
         setLoading(false);
         return;
       }

@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Home, CheckCircle } from 'lucide-react';
-import { API_URL } from '../lib/supabase';
-import { publicAnonKey } from '/utils/supabase/info';
+import { authFetch } from '../lib/authFetch';
 import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 export default function AdminTools() {
@@ -14,30 +13,24 @@ export default function AdminTools() {
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
 
-  const handleApproveLoan = async (e: React.FormEvent) => {
+  const handleApproveLoan = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setResult('');
     setProcessing(true);
 
     try {
-      const response = await fetch(`${API_URL}/admin/approve-loan/${applicationId}`, {
+      const { data, ok, error: fetchError } = await authFetch(`/admin/approve-loan/${applicationId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`,
-        },
         body: JSON.stringify({
           interestRate: parseFloat(interestRate),
           termMonths: parseInt(termMonths),
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('Error approving loan:', data.error);
-        setError(data.error || 'Failed to approve loan');
+      if (!ok) {
+        console.error('Error approving loan:', data?.error || fetchError);
+        setError(data?.error || fetchError || 'Failed to approve loan');
       } else {
         setResult(`Loan approved successfully! Loan ID: ${data.loan.id}`);
         setApplicationId('');
