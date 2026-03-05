@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Calendar, CreditCard, CheckCircle, Home } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { authFetch } from '../lib/authFetch';
-import '../loandetail.css';
+ 
 
 interface Loan {
   id: string;
