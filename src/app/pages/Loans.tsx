@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Home, DollarSign, Calendar, TrendingUp, ChevronRight } from 'lucide-react';
+import { Home, DollarSign, Calendar, TrendingUp, CreditCard, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { authFetch } from '../lib/authFetch';
- 
+import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 interface Loan {
   id: string;
@@ -123,16 +123,13 @@ export default function Loans() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                type="button"
-                title="Back to dashboard"
                 onClick={() => navigate('/dashboard')}
                 className="p-2 hover:bg-gray-100 rounded-lg"
               >
-                 
+                <img src={logo} alt="Harvey's Loans" className="h-10" />
               </button>
             </div>
             <button
-              type="button"
               onClick={() => navigate('/')}
               className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
             >
@@ -204,7 +201,6 @@ export default function Loans() {
               You don't have any active loans yet. Apply for a loan to get started.
             </p>
             <button
-              type="button"
               onClick={() => navigate('/loan-application')}
               className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold"
             >
@@ -267,10 +263,10 @@ export default function Loans() {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-indigo-600 h-2 rounded-full transition-all progress-bar"
+                      className="bg-indigo-600 h-2 rounded-full transition-all"
                       style={{
                         width: `${((loan.totalAmount - loan.remainingBalance) / loan.totalAmount) * 100}%`,
-                      } as React.CSSProperties}
+                      }}
                     />
                   </div>
                 </div>

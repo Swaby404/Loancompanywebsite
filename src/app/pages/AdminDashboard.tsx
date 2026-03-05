@@ -29,8 +29,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { authFetch } from '../lib/authFetch';
- 
- 
+import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 interface EnrichedApplication {
   id: string;
@@ -302,7 +301,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-               
+              <img src={logo} alt="Harvey's Loans" className="h-10" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                   <Shield className="w-5 h-5 text-indigo-600" />
@@ -313,7 +312,6 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center gap-2">
               <button
-                type="button"
                 onClick={handleRefresh}
                 disabled={refreshing}
                 className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
@@ -325,7 +323,7 @@ export default function AdminDashboard() {
                 <Home className="w-4 h-4" />
                 <span className="hidden sm:inline">Home</span>
               </Link>
-              <button type="button" onClick={handleSignOut} className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+              <button onClick={handleSignOut} className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Sign Out</span>
               </button>
@@ -358,7 +356,7 @@ export default function AdminDashboard() {
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
             <p className="text-red-700 text-sm">{error}</p>
-            <button type="button" title="Close error message" onClick={() => setError('')} className="ml-auto text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
+            <button onClick={() => setError('')} className="ml-auto text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
           </div>
         )}
 
@@ -370,7 +368,6 @@ export default function AdminDashboard() {
                 {tabs.map(tab => (
                   <button
                     key={tab.key}
-                    type="button"
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
                       activeTab === tab.key
@@ -430,7 +427,7 @@ export default function AdminDashboard() {
                 <h2 className="text-xl font-bold text-white">Loan Application Review</h2>
                 <p className="text-indigo-200 text-sm">{selectedApp.applicationId || selectedApp.id}</p>
               </div>
-              <button type="button" title="Close application details" onClick={() => { setSelectedApp(null); setShowDenyForm(false); setError(''); }} className="text-white/80 hover:text-white p-1">
+              <button onClick={() => { setSelectedApp(null); setShowDenyForm(false); setError(''); }} className="text-white/80 hover:text-white p-1">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -532,26 +529,26 @@ export default function AdminDashboard() {
                         <input type="number" value={termMonths} onChange={e => setTermMonths(e.target.value)} placeholder="12" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm" />
                       </div>
                     </div>
-                    <button type="button" onClick={handleApprove} disabled={approving || !interestRate || !termMonths} className="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <button onClick={handleApprove} disabled={approving || !interestRate || !termMonths} className="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                       <ThumbsUp className="w-4 h-4" />{approving ? 'Approving...' : 'Approve Loan Application'}
                     </button>
                   </div>
                   <div className="bg-red-50 rounded-xl p-5 border border-red-200">
                     {!showDenyForm ? (
-                      <button type="button" onClick={() => setShowDenyForm(true)} className="w-full flex items-center justify-center gap-2 text-red-700 hover:text-red-800 font-medium py-2">
+                      <button onClick={() => setShowDenyForm(true)} className="w-full flex items-center justify-center gap-2 text-red-700 hover:text-red-800 font-medium py-2">
                         <ThumbsDown className="w-4 h-4" /> Deny This Application <ChevronDown className="w-4 h-4" />
                       </button>
                     ) : (
                       <>
                         <h3 className="font-semibold text-red-800 mb-3 flex items-center gap-2">
                           <ThumbsDown className="w-5 h-5" /> Deny Application
-                          <button type="button" title="Collapse deny form" onClick={() => setShowDenyForm(false)} className="ml-auto text-red-400 hover:text-red-600"><ChevronUp className="w-4 h-4" /></button>
+                          <button onClick={() => setShowDenyForm(false)} className="ml-auto text-red-400 hover:text-red-600"><ChevronUp className="w-4 h-4" /></button>
                         </h3>
                         <div className="mb-4">
                           <label className="block text-sm font-medium text-gray-700 mb-1">Denial Reason</label>
                           <textarea value={denialReason} onChange={e => setDenialReason(e.target.value)} placeholder="Provide a reason for denial..." rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm resize-none" />
                         </div>
-                        <button type="button" onClick={handleDeny} disabled={denying} className="w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <button onClick={handleDeny} disabled={denying} className="w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                           <XCircle className="w-4 h-4" />{denying ? 'Denying...' : 'Confirm Denial'}
                         </button>
                       </>
@@ -652,7 +649,7 @@ function ApplicationsTable({ applications, activeTab, getStatusBadge, onViewDeta
               <td className="px-4 py-3"><span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full border ${getStatusBadge(app.status)}`}>{app.status}</span></td>
               <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{new Date(app.submittedAt || app.createdAt).toLocaleDateString()}</td>
               <td className="px-4 py-3">
-                <button type="button" onClick={() => onViewDetails(app)} className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+                <button onClick={() => onViewDetails(app)} className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
                   <Eye className="w-3.5 h-3.5" /> Review
                 </button>
               </td>

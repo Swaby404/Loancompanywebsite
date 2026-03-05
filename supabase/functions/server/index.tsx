@@ -699,7 +699,9 @@ app.get('/make-server-a5671405/loan-applications', async (c) => {
     }
 
     const applicationIds = await kv.get(`user_applications:${user.id}`) || [];
-    const applications = await kv.mget(applicationIds.map((id: string) => `application:${id}`));
+    const applications = applicationIds.length > 0 
+      ? await kv.mget(applicationIds.map((id: string) => `application:${id}`))
+      : [];
 
     // Calculate current balances with 30% interest
     const applicationsWithBalance = applications.map((app: any) => {

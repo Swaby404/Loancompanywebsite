@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Mail, Home, ArrowLeft, CheckCircle, Lock, Eye, EyeOff, KeyRound, Send, ShieldCheck, Hash } from 'lucide-react';
 import { publicFetch } from '../lib/authFetch';
- 
+import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 type ResetMethod = null | 'onsite' | 'link' | 'temp';
 type OnsiteStep = 'email' | 'code' | 'password' | 'done';
@@ -164,7 +164,7 @@ export default function ForgotPassword() {
   const Header = () => (
     <div className="flex items-center justify-between mb-8">
       <Link to="/" className="flex items-center gap-2">
-       
+        <img src={logo} alt="Harvey's Loans" className="h-10" />
       </Link>
       <Link to="/" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
         <Home className="w-4 h-4" />

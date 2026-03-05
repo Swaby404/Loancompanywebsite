@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { Mail, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
- 
+import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 export default function EmailSetup() {
   return (
@@ -10,7 +10,7 @@ export default function EmailSetup() {
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <Link to="/" className="flex items-center gap-2">
-              
+              <img src={logo} alt="Harvey's Loans" className="h-10" />
             </Link>
             <Link
               to="/admin/dashboard"

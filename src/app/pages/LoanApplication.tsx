@@ -3,15 +3,22 @@ import { useNavigate } from 'react-router';
 import { ArrowLeft, Upload, CheckCircle, CreditCard, Home } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { authFetch } from '../lib/authFetch';
+import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
-declare global {
-  interface ImportMeta {
-    readonly env: Record<string, string>;
+// Dynamically import Stripe to avoid SSR issues
+let stripePromise: any = null;
+
+const getStripe = async () => {
+  if (!stripePromise) {
+    const { loadStripe } = await import('@stripe/stripe-js');
+    stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51Placeholder000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000');
   }
-}
+  return stripePromise;
+};
 
 export default function LoanApplication() {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1);
 
@@ -61,6 +68,7 @@ export default function LoanApplication() {
         return;
       }
 
+      setUser(session.user);
       setFormData(prev => ({
         ...prev,
         fullName: session.user.user_metadata?.name || '',
@@ -271,19 +279,16 @@ export default function LoanApplication() {
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <button
-                type="button"
                 onClick={() => navigate('/dashboard')}
-                aria-label="Go back to dashboard"
                 className="p-2 hover:bg-gray-100 rounded-lg"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div className="flex items-center gap-2">
-                 
+                <img src={logo} alt="Harvey's Loans" className="h-10" />
               </div>
             </div>
             <button
-              type="button"
               onClick={() => navigate('/')}
               className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
             >
@@ -347,7 +352,6 @@ export default function LoanApplication() {
                     value={formData.fullName}
                     onChange={handleInputChange}
                     required
-                    title="Full Name"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
@@ -362,7 +366,6 @@ export default function LoanApplication() {
                     value={formData.phone}
                     onChange={handleInputChange}
                     required
-                    title="Phone Number"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
@@ -378,7 +381,6 @@ export default function LoanApplication() {
                   value={formData.address}
                   onChange={handleInputChange}
                   required
-                  title="Street Address"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
@@ -394,7 +396,6 @@ export default function LoanApplication() {
                     value={formData.city}
                     onChange={handleInputChange}
                     required
-                    title="City"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
@@ -409,7 +410,6 @@ export default function LoanApplication() {
                     value={formData.state}
                     onChange={handleInputChange}
                     required
-                    title="State"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
@@ -424,14 +424,12 @@ export default function LoanApplication() {
                     value={formData.zipCode}
                     onChange={handleInputChange}
                     required
-                    title="ZIP Code"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
               <button
-                type="button"
                 onClick={() => setStep(2)}
                 disabled={!canProceedToStep2()}
                 className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
@@ -457,7 +455,6 @@ export default function LoanApplication() {
                     value={formData.employer}
                     onChange={handleInputChange}
                     required
-                    title="Employer Name"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
@@ -472,7 +469,6 @@ export default function LoanApplication() {
                     value={formData.jobTitle}
                     onChange={handleInputChange}
                     required
-                    title="Job Title"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
@@ -489,9 +485,8 @@ export default function LoanApplication() {
                     value={formData.monthlyIncome}
                     onChange={handleInputChange}
                     required
-                    title="Monthly Income"
-                    placeholder="5000"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="5000"
                   />
                 </div>
 
@@ -505,9 +500,8 @@ export default function LoanApplication() {
                     value={formData.employmentYears}
                     onChange={handleInputChange}
                     required
-                    title="Years at Current Job"
-                    placeholder="2"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="2"
                   />
                 </div>
               </div>
@@ -549,14 +543,12 @@ export default function LoanApplication() {
 
               <div className="flex gap-4">
                 <button
-                  type="button"
                   onClick={() => setStep(1)}
                   className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold"
                 >
                   Back
                 </button>
                 <button
-                  type="button"
                   onClick={() => setStep(3)}
                   disabled={!canProceedToStep3()}
                   className="flex-1 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
@@ -583,9 +575,8 @@ export default function LoanApplication() {
                     value={formData.loanAmount}
                     onChange={handleInputChange}
                     required
-                    title="Loan Amount"
-                    placeholder="10000"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="10000"
                   />
                 </div>
 
@@ -598,7 +589,6 @@ export default function LoanApplication() {
                     value={formData.loanPurpose}
                     onChange={handleInputChange}
                     required
-                    title="Loan Purpose"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   >
                     <option value="">Select purpose</option>
@@ -697,14 +687,12 @@ export default function LoanApplication() {
 
               <div className="flex gap-4">
                 <button
-                  type="button"
                   onClick={() => setStep(2)}
                   className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold"
                 >
                   Back
                 </button>
                 <button
-                  type="button"
                   onClick={() => setStep(4)}
                   disabled={!canProceedToStep4()}
                   className="flex-1 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
@@ -756,7 +744,6 @@ export default function LoanApplication() {
                     In production, you would integrate Stripe Elements for actual payment processing.
                   </p>
                   <button
-                    type="button"
                     onClick={handlePayment}
                     disabled={processingPayment}
                     className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -782,7 +769,6 @@ export default function LoanApplication() {
                     <p className="text-green-700">Your application fee has been processed</p>
                   </div>
                   <button
-                    type="button"
                     onClick={handleSubmitApplication}
                     disabled={submitting}
                     className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
@@ -794,7 +780,6 @@ export default function LoanApplication() {
 
               {!paymentComplete && (
                 <button
-                  type="button"
                   onClick={() => setStep(3)}
                   className="w-full py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold"
                 >

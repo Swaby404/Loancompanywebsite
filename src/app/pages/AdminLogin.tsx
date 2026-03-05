@@ -3,8 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { Lock, User, Home, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { publicFetch } from '../lib/authFetch';
- 
- 
+import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -99,7 +98,7 @@ export default function AdminLogin() {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
         {/* Logo */}
         <div className="text-center mb-8">
-           
+          <img src={logo} alt="Harvey's Loans" className="h-16 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900">Admin Portal</h1>
           <p className="text-gray-600 mt-2">Secure Access Only</p>
         </div>

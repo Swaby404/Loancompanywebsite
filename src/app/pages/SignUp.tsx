@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { Mail, Lock, User, Home, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { publicFetch } from '../lib/authFetch';
- 
+import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -82,7 +82,7 @@ export default function SignUp() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="flex items-center justify-between mb-8">
             <Link to="/" className="flex items-center gap-2">
-              
+              <img src={logo} alt="Harvey's Loans" className="h-10" />
             </Link>
             <Link
               to="/"
