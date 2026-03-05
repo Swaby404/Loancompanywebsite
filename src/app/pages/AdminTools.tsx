@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Home, CheckCircle } from 'lucide-react';
 import { authFetch } from '../lib/authFetch';
-import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
 
 export default function AdminTools() {
   const navigate = useNavigate();
@@ -50,10 +49,11 @@ export default function AdminTools() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src={logo} alt="Harvey's Loans" className="h-10" />
+              <div className="h-10 w-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">HL</div>
               <h1 className="text-xl font-bold text-gray-900">Admin Tools</h1>
             </div>
             <button
+              type="button"
               onClick={() => navigate('/')}
               className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
             >
@@ -117,6 +117,8 @@ export default function AdminTools() {
                 </label>
                 <input
                   type="number"
+                  title="Interest Rate (APR)"
+                  placeholder="Enter interest rate"
                   value={interestRate}
                   onChange={(e) => setInterestRate(e.target.value)}
                   step="0.01"
@@ -133,6 +135,7 @@ export default function AdminTools() {
                   Term (Months) *
                 </label>
                 <select
+                  title="Term (Months)"
                   value={termMonths}
                   onChange={(e) => setTermMonths(e.target.value)}
                   required

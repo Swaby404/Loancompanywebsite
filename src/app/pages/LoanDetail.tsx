@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, DollarSign, Calendar, CreditCard, CheckCircle, Home } from 'lucide-react';
+import { ArrowLeft, Calendar, CreditCard, CheckCircle, Home } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { authFetch } from '../lib/authFetch';
-import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
+import '../loandetail.css';
 
 interface Loan {
   id: string;
@@ -93,7 +93,7 @@ export default function LoanDetail() {
     }
   };
 
-  const handleMakePayment = async (e: React.FormEvent) => {
+  const handleMakePayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setProcessing(true);
@@ -156,13 +156,13 @@ export default function LoanDetail() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'status-active';
       case 'paid_off':
-        return 'bg-blue-100 text-blue-800';
+        return 'status-paid-off';
       case 'late':
-        return 'bg-red-100 text-red-800';
+        return 'status-late';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'status-default';
     }
   };
 
@@ -170,7 +170,7 @@ export default function LoanDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="spinner"></div>
           <p className="text-gray-600">Loading loan details...</p>
         </div>
       </div>
@@ -183,6 +183,7 @@ export default function LoanDetail() {
         <div className="text-center">
           <p className="text-red-600">Loan not found</p>
           <button
+            type="button"
             onClick={() => navigate('/loans')}
             className="mt-4 text-indigo-600 hover:text-indigo-700"
           >
@@ -201,14 +202,17 @@ export default function LoanDetail() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
+                type="button"
                 onClick={() => navigate('/loans')}
+                title="Go back to loans"
                 className="p-2 hover:bg-gray-100 rounded-lg"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <img src={logo} alt="Harvey's Loans" className="h-10" />
+              <img src="/logo.png" alt="Harvey's Loans" className="h-10" />
             </div>
             <button
+              type="button"
               onClick={() => navigate('/')}
               className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
             >
@@ -271,9 +275,9 @@ export default function LoanDetail() {
               <span>Loan Progress</span>
               <span>{Math.round(((loan.totalAmount - loan.remainingBalance) / loan.totalAmount) * 100)}% paid</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="progress-bar-container">
               <div
-                className="bg-indigo-600 h-3 rounded-full transition-all"
+                className="progress-bar"
                 style={{
                   width: `${((loan.totalAmount - loan.remainingBalance) / loan.totalAmount) * 100}%`,
                 }}
@@ -284,8 +288,9 @@ export default function LoanDetail() {
           {/* Payment Button */}
           {loan.status === 'active' && !showPaymentForm && (
             <button
+              type="button"
               onClick={() => setShowPaymentForm(true)}
-              className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold flex items-center justify-center gap-2"
+              className="btn-make-payment"
             >
               <CreditCard className="w-5 h-5" />
               Make a Payment
@@ -294,7 +299,7 @@ export default function LoanDetail() {
 
           {/* Payment Form */}
           {showPaymentForm && loan.status === 'active' && (
-            <form onSubmit={handleMakePayment} className="space-y-4 mt-6 p-6 bg-gray-50 rounded-lg">
+            <form onSubmit={handleMakePayment} className="payment-form">
               <h3 className="text-lg font-semibold text-gray-900">Make a Payment</h3>
               
               <div>
@@ -316,14 +321,14 @@ export default function LoanDetail() {
                   <button
                     type="button"
                     onClick={() => setPaymentAmount(loan.monthlyPayment.toString())}
-                    className="text-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+                    className="btn-quick-amount"
                   >
                     Monthly Payment
                   </button>
                   <button
                     type="button"
                     onClick={() => setPaymentAmount(loan.remainingBalance.toString())}
-                    className="text-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+                    className="btn-quick-amount"
                   >
                     Pay in Full
                   </button>
@@ -338,14 +343,14 @@ export default function LoanDetail() {
                 <button
                   type="button"
                   onClick={() => setShowPaymentForm(false)}
-                  className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold"
+                  className="btn-cancel"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={processing}
-                  className="flex-1 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-submit-payment"
                 >
                   {processing ? 'Processing...' : 'Submit Payment'}
                 </button>
@@ -383,16 +388,16 @@ export default function LoanDetail() {
                       </td>
                       <td className="py-3 px-4">
                         {isPaid ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">
+                          <span className="status-badge status-paid">
                             <CheckCircle className="w-3 h-3" />
                             Paid
                           </span>
                         ) : dueDate < new Date() ? (
-                          <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded">
+                          <span className="status-badge status-overdue">
                             Overdue
                           </span>
                         ) : (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded">
+                          <span className="status-badge status-pending">
                             Pending
                           </span>
                         )}
@@ -422,7 +427,7 @@ export default function LoanDetail() {
                   className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-green-100 rounded-lg">
+                    <div className="payment-icon">
                       <CheckCircle className="w-6 h-6 text-green-600" />
                     </div>
                     <div>
@@ -430,7 +435,7 @@ export default function LoanDetail() {
                       <p className="text-sm text-gray-600">{formatDate(payment.date)}</p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">
+                  <span className="status-badge status-completed">
                     {payment.status === 'completed' ? 'Completed' : payment.status}
                   </span>
                 </div>

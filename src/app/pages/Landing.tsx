@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { Shield, Zap } from 'lucide-react';
-import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
+ 
 
 export default function Landing() {
   return (
@@ -9,7 +9,7 @@ export default function Landing() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="Harvey's Loans" className="h-12" />
+             
           </div>
           <div className="flex gap-4">
             <Link 
@@ -48,7 +48,7 @@ export default function Landing() {
           </div>
           <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-12">
             <img 
-              src={logo} 
+               
               alt="Harvey's Loans" 
               className="w-full max-w-md"
             />
@@ -83,7 +83,7 @@ export default function Landing() {
             </div>
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                <img src={logo} alt="" className="w-12 h-12 object-contain" />
+                
               </div>
               <h4 className="text-xl font-semibold mb-2">Transparent Terms</h4>
               <p className="text-gray-600">
@@ -99,7 +99,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <img src={logo} alt="Harvey's Loans" className="h-8" />
+               
             </div>
             <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
               <a href="tel:1-3459178564" className="text-gray-300 hover:text-white transition-colors">

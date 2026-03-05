@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { LogOut, Plus, Home, DollarSign } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import logo from 'figma:asset/e91ed6d83f2690a79935309cf8f1610c8d4c98b8.png';
+ 
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <img src={logo} alt="Harvey's Loans" className="h-10" />
+               
             </Link>
             <div className="flex items-center gap-4">
               <Link
@@ -69,6 +69,7 @@ export default function Dashboard() {
                 {user?.user_metadata?.name || user?.email}
               </span>
               <button
+                type="button"
                 onClick={handleSignOut}
                 className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900"
               >

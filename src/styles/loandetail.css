@@ -1,0 +1,171 @@
+/* Spinner */
+.spinner {
+  width: 4rem;
+  height: 4rem;
+  border: 4px solid rgb(79, 70, 229);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  width: 100%;
+  background-color: rgb(229, 231, 235);
+  border-radius: 9999px;
+  height: 0.75rem;
+}
+
+.progress-bar {
+  background-color: rgb(79, 70, 229);
+  height: 0.75rem;
+  border-radius: 9999px;
+  transition: width 0.3s ease-in-out;
+}
+
+/* Buttons */
+.btn-make-payment {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgb(79, 70, 229);
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-make-payment:hover {
+  background-color: rgb(67, 56, 202);
+}
+
+.btn-quick-amount {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.75rem;
+  background-color: rgb(229, 231, 235);
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-quick-amount:hover {
+  background-color: rgb(209, 213, 219);
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: rgb(229, 231, 235);
+  color: rgb(55, 65, 81);
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: rgb(209, 213, 219);
+}
+
+.btn-submit-payment {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: rgb(79, 70, 229);
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-submit-payment:hover:not(:disabled) {
+  background-color: rgb(67, 56, 202);
+}
+
+.btn-submit-payment:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Payment Form */
+.payment-form {
+  space-y: 1rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: rgb(249, 250, 251);
+  border-radius: 0.5rem;
+}
+
+/* Status Colors */
+.status-active {
+  background-color: rgb(220, 252, 231);
+  color: rgb(22, 163, 74);
+}
+
+.status-paid-off {
+  background-color: rgb(219, 234, 254);
+  color: rgb(37, 99, 235);
+}
+
+.status-late {
+  background-color: rgb(254, 226, 226);
+  color: rgb(220, 38, 38);
+}
+
+.status-default {
+  background-color: rgb(243, 244, 246);
+  color: rgb(55, 65, 81);
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.25rem;
+}
+
+.status-paid {
+  background-color: rgb(220, 252, 231);
+  color: rgb(22, 163, 74);
+}
+
+.status-overdue {
+  background-color: rgb(254, 226, 226);
+  color: rgb(220, 38, 38);
+}
+
+.status-pending {
+  background-color: rgb(243, 244, 246);
+  color: rgb(55, 65, 81);
+}
+
+.status-completed {
+  background-color: rgb(220, 252, 231);
+  color: rgb(22, 163, 74);
+}
+
+/* Payment Icon */
+.payment-icon {
+  padding: 0.75rem;
+  background-color: rgb(220, 252, 231);
+  border-radius: 0.5rem;
+}
